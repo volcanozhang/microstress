@@ -8,8 +8,6 @@ offset = 4096
 framedim = (2594, 2774)
 nb_elem = framedim[0]*framedim[1]
 formatdata = np.uint16
-path = '/home/fengguo/Data/21Feb13/Si1g_200N/Getdet/'
-nom = 'Getdet_0034_mar.tiff'
 path = os.path.join('/home', 'fengguo', 'Data', '21Feb13', 'Si1g_200N', 'Getdet', 'Getdet_0034_mar.tiff')
 
 f = open(path, 'rb')
