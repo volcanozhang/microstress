@@ -17,7 +17,7 @@ framedim = (2594, 2774)
 images = np.zeros((100, framedim[0], framedim[1]))
 nb_elem = framedim[0] * framedim[1]
 formatdata = np.uint16
-dirpath = '/home/fengguo/Data/21Feb13/Si1g_50N/nomvt/'
+dirpath = '/home/fengguo/Data/21Feb13/Si1g_100N/nomvt/'
 for i in range(10):
     path = dirpath + 'S1gnomvt_000%i_mar.tiff'%i
     f = open(path, 'rb')
@@ -38,8 +38,8 @@ for i in range(framedim[0]):
     for j in range(framedim[1]):
         mean[i, j], std[i, j] = images[:, i, j].mean(), images[:, i, j].std()
 
-np.save('21_Si1g_50N_nomvt_mean', mean)
-np.save('21_Si1g_50N_nomvt_std', std)
+np.save('21_Si1g_100N_nomvt_mean', mean)
+np.save('21_Si1g_100N_nomvt_std', std)
 #mean = images[:]
 """
 # for displaying
