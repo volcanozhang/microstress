@@ -10,7 +10,7 @@ from matplotlib import cm
 
 fig = pylab.figure()
 ax = Axes3D(fig)
-
+"""
 # for displaying
 numx, numy = 50, 100
 scalex, scaley = full2theta, fullgamma
@@ -32,3 +32,4 @@ for i in range(numx+1):
         z[i, j] = func(x[i,j], y[i,j])
 
 surf = ax.plot_surface(x, y, z, rstride=1, cstride=1, cmap=cm.jet)
+"""
