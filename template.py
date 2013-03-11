@@ -1,5 +1,6 @@
 import numpy as np
 import scipy as sp
+import numpy.ma as ma
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import pylab
@@ -10,6 +11,10 @@ from matplotlib import cm
 
 fig = pylab.figure()
 ax = Axes3D(fig)
+
+m = np.zeros((2594, 2774))
+m[2422, 477] = 1
+mask = ma.make_mask(m)
 """
 # for displaying
 numx, numy = 50, 100
