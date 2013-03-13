@@ -24,20 +24,11 @@ gaussian = lambda x, y: Imax*exp(-(A*pow(x-twotheta, 2)+2*B*(x-twotheta)*(y-gamm
 numx, numy = 50, 100
 scalex, scaley = full2theta, fullgamma
 func = gaussian
+x, y = np.mgrid[0:scalex:complex(0,numx),0:scaley:complex(0,numy)]
 
-ar = np.arange(0, scalex+scalex/numx, scalex/numx)
-x = np. zeros((numx+1, numy+1))
-for i in range(numy+1):
-    x[:, i] = ar
-
-ar = np.arange(0, scaley+scaley/numy, scaley/numy)
-y = np. zeros((numx+1, numy+1))
-for i in range(numx+1):
-    y[i] = ar
-
-z = np.zeros((numx+1, numy+1))
-for i in range(numx+1):
-    for j in range(numy+1):
+z = np.zeros((numx, numy))
+for i in range(numx):
+    for j in range(numy):
         z[i, j] = func(x[i,j], y[i,j])
 
 surf = ax.plot_surface(x, y, z, rstride=1, cstride=1, cmap=cm.jet)
