@@ -1688,4 +1688,7 @@ def readoneimage_manycrops(filename, centers, boxsize,
 #        #print "cropdata.shape", cropdata.shape
 ##        Data.append(cropdata)
     return Data
-#t = PeakSearch('/home/fengguo/Data/21Feb13/Si1g_5N/nomvt/S1gnomvt_0000_mar.tiff')
+peaks = PeakSearch('/home/fengguo/Data/Si1g_5N/nomvt/S1gnomvt_0000_mar.tiff',IntensityThreshold=200)
+f = open('peak_.dat', 'w')
+f.write('\n'.join(['%.06f %.06f %.06f %.06f %.06f %.06f %.06f %.06f %.06f %.06f'%tuple(peaks[0].tolist()[i]) for i in range(peaks[0].shape[0])]))
+f.close()
