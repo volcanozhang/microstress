@@ -17,7 +17,7 @@ m = np.zeros((2594, 2774))
 m[2422, 477] = 1
 mask = ma.make_mask(m)
 
-name = 'peaks'
+name = 'peak_20'
 
 cor_apd, fit_apd = '.cor', '.fit'
 path = '/home/fengguo/microstress/'
@@ -38,12 +38,14 @@ offset = 4096
 framedim = (2594, 2774)
 nb_elem = framedim[0]*framedim[1]
 formatdata = np.uint16
-path = os.path.join('/', 'home', 'fengguo', 'Data', '21Feb13', 'Si1g_5N', 'nomvt', 'S1gnomvt_0000_mar.tiff')
+path = os.path.join('/', 'home', 'fengguo', 'Data', 'Si1g_5N', 'nomvt', 'S1gnomvt_0000_mar.tiff')
 
 f = open(path, 'rb')
 f.seek(offset)
 raw_image = np.fromfile(f, dtype = formatdata, count = nb_elem).reshape(framedim)
 plt.imshow(np.log(raw_image))
+
+np.save('hklxy_'+name,hklxy)
 """
 # for displaying
 numx, numy = 50, 100
