@@ -1,0 +1,1 @@
+gcc -pthread -fno-strict-aliasing -DNDEBUG -g -fwrapv -O2 -Wall -Wstrict-prototypes -fPIC -I/usr/lib/python2.7/dist-packages/numpy/core/include -I/usr/include/python2.7 -c vista.c -o build/temp.linux-x86_64-2.7/vista.o
