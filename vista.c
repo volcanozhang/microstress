@@ -3,7 +3,8 @@
 #include <stdio.h>
 #include "numpy/ndarraytypes.h"
 #include "numpy/ufuncobject.h"
-#include "numpy/halffloat.h"
+
+#include <vista/VImage.h>
 
 /*
  * vista.c
@@ -21,92 +22,41 @@
  *
  */
 
-static PyMethodDef VistaMethods[] = {
-        {NULL, NULL, 0, NULL}
-};
-
-/* The loop definitions must precede the PyMODINIT_FUNC. */
-
-static void python2vista(char **args, npy_intp *dimensions,
-                  npy_intp* steps, void* data)
+static PyObject *python2vista(PyObject *self, PyObject *arg)
 {
-    npy_intp i;
-    npy_intp n = dimensions[0];
-    char *in = args[0], *out = args[1];
-    npy_intp in_step = steps[0], out_step = steps[1];
+    PyArrayObject *array;
 
-    /*BEGIN main part*/
-    /*FILE *f;
-    f = fopen('tt', 'w');
-    fprintf(f, "tt");*/
-    printf("args %f",*(double *)in);
-    printf("dimension %i",*dimensions);
-    /*END main part*/
-}
-
-/*This gives pointers to the above functions*/
-PyUFuncGenericFunction funcs[1] = {&python2vista};
-
-/* These are the input and return dtype.*/
-static char types[2] = {NPY_DOUBLE, NPY_DOUBLE};
-
-static void *data[1] = {NULL};
-
-#if PY_VERSION_HEX >= 0x03000000
-static struct PyModuleDef moduledef = {
-    PyModuleDef_HEAD_INIT,
-    "vista",
-    NULL,
-    -1,
-    VistaMethods,
-    NULL,
-    NULL,
-    NULL,
-    NULL
-};
-
-PyObject *PyInit_vista(void)
-{
-    PyObject *m, *python2vista, *d;
-    m = PyModule_Create(&moduledef);
-    if (!m) {
+    if (!PyArg_ParseTuple(arg, "O!", &PyArray_Type, &array))
         return NULL;
-    }
+    if (array->nd != 2)
+        return NULL;
+    npy_intp *dim = array->dimensions;
+    npy_intp *strd = array->strides;
+    //unsigned int data[dim[0]][dim[2]];
+    npy_intp strd0 = array->strides[0];
+    npy_intp strd1 = array->strides[1];
+    
+    VImage image = VCreateImage (1, dim[0], dim[1], VLongRepn);
+    printf("%i %i", dim[0],dim[1]);
 
-    import_array();
-    import_umath();
-
-    python2vista = PyUFunc_FromFuncAndData(funcs, data, types, 1, 1, 1,
-                                           PyUFunc_None, "python2vista",
-                                           "", 0);
-
-    d = PyModule_GetDict(m);
-
-    PyDict_SetItemString(d, "python2vista", python2vista);
-    Py_DECREF(python2vista);
-
-    return m;
+    return PyString_FromString("sdkgfg");
 }
-#else
-PyMODINIT_FUNC initvista(void)
+
+static PyMethodDef VistaMethods[] = {
+    {"python2vista", python2vista, METH_VARARGS, NULL},
+    {NULL, NULL, 0, NULL} /*Sentinel*/
+};
+
+PyMODINIT_FUNC initvista()
 {
-    PyObject *m, *python2vista, *d;
+/*
+    PyObject *m;
 
     m = Py_InitModule("vista", VistaMethods);
-    if (m == NULL) {
-        return;
-    }
-
     import_array();
     import_umath();
-
-    python2vista = PyUFunc_FromFuncAndData(funcs, data, types, 1, 1, 1,
-                                           PyUFunc_None, "python2vista",
-                                           "", 0);
-
-    d = PyModule_GetDict(m);
-
-    PyDict_SetItemString(d, "python2vista", python2vista);
-    Py_DECREF(python2vista);
+    return m;*/
+    Py_InitModule3("vista", VistaMethods, "");
+    import_array();
+    import_umath();
 }
-#endif
