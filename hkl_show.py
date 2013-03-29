@@ -11,7 +11,7 @@ framedim = (2594, 2774)
 nb_elem = framedim[0]*framedim[1]
 formatdata = np.uint16
 
-
+bkg = np.load("background.npy")
 print hklxy.keys()
 def stringint(k, n):
     strint = str(k)
@@ -21,7 +21,7 @@ def stringint(k, n):
 def show(hkl, rx = 10, ry = 10):
     f = open(path, 'rb')
     f.seek(offset)
-    image = np.fromfile(f, dtype = formatdata, count = nb_elem).reshape(framedim)
+    image = np.fromfile(f, dtype = formatdata, count = nb_elem).reshape(framedim)+bkg-100
     f.close()
     cen = hklxy[hkl]
     int_x, int_y = int(round(cen[1])), int(round(cen[0]))
@@ -46,7 +46,7 @@ def mean_std(hkl, rx = 10, ry = 10):
         path = dirpath + 'S1gnomvt_%s_mar.tiff'%stringint(i,4)
         f = open(path, 'rb')
         f.seek(offset)
-        image = np.fromfile(f, dtype = formatdata, count = nb_elem).reshape(framedim)
+        image = np.fromfile(f, dtype = formatdata, count = nb_elem).reshape(framedim)+bkg-100
         for j in range(len(xys)):
             subimages[i,j] = image[xys[j]]
         f.close()
@@ -54,5 +54,8 @@ def mean_std(hkl, rx = 10, ry = 10):
     for i in range(len(xys)):
         mean[i], std[i] = subimages[:,i].mean(), subimages[:,i].std()
     return mean, std
-
-mean, std = mean_std((-2,-2,-4),rx=7,ry=7)
+"""
+mean, std = mean_std((-5,-5,-7),rx=7,ry=7)
+plt.plot(mean, std, '.')
+plt.show()
+"""
