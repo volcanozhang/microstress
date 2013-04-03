@@ -12,7 +12,7 @@ fig = pylab.figure()
 ax = Axes3D(fig)
 
 FWHMx, FWHMy, xi, Imax = 2., 1., 0., 10.
-twotheta, chi, full2theta, fullchi = pi/2, pi, pi, 2*pi
+twotheta, chi, full2theta, minchi, maxchi = pi/2, 0, pi, -pi, pi
 sqcosxi, sin2xi, coef = pow(cos(xi), 2), sin(2*xi), 8*log(2)
 sqsinxi = 1-sqcosxi
 coefx, coefy = coef/pow(FWHMx, 2), coef/pow(FWHMy, 2)
@@ -22,9 +22,9 @@ gaussian = lambda x, y: Imax*exp(-(A*pow(x-twotheta, 2)+2*B*(x-twotheta)*(y-chi)
 
 # for displaying the spot
 numx, numy = 50, 100
-scalex, scaley = full2theta, fullchi
+minx, maxx, miny, maxy = 0, full2theta, minchi, maxchi
 func = gaussian
-x, y = np.mgrid[0:scalex:complex(0,numx),0:scaley:complex(0,numy)]
+x, y = np.mgrid[minx:maxx:complex(0,numx),miny:maxy:complex(0,numy)]
 
 z = np.zeros((numx, numy))
 for i in range(numx):
