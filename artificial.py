@@ -6,6 +6,9 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import pylab
 
+import libtiff
+from libtiff import TIFFfile, TIFFimage
+
 from math import pow, sqrt, exp, log, sin, cos, pi
 #from mpl_toolkits.mplot3d import Axes3D
 #from matplotlib import cm
@@ -41,25 +44,46 @@ gaussian = lambda x, y: Imax*exp(-(A*(x-twotheta0)**2+2*B*(x-twotheta0)*(y-chi0)
 
 dd = 59.836
 
-def gaussian_xy_low(x, y, dd = 0.5 * dd):
-    cenx, ceny = angle2xy(twoTheta0, Chi0, dd = dd)
-    two_Theta, Chi = xy2angle(x - sizex/2 + cenx, y - sizey/2 + ceny, dd = dd)
-    two_theta, _chi = two_Theta * D2R, Chi * D2R
-    return gaussian(two_theta, _chi)
-def gaussian_xy_high(x, y, dd = dd):
-    cenx, ceny = angle2xy(twoTheta0, Chi0, dd = dd)
-    two_Theta, Chi = xy2angle(x - sizex/2 + cenx, y - sizey/2 + ceny, dd = dd)
-    two_theta, _chi = two_Theta * D2R, Chi * D2R
-    return gaussian(two_theta, _chi)
-es_himage, es_limage = np.zeros((sizex, sizey)), np.zeros((sizex, sizey))
 expe, var = np.load('exp_var.npy')[0: 2]
-for i in range(sizex):
-    for j in range(sizey):
-        lower, upper = lambda x: j, lambda x: j+1
-        es_limage[i, j] = integrate.dblquad(gaussian_xy_low, i, i+1, lower, upper)[0]
-        es_himage[i, j] = integrate.dblquad(gaussian_xy_high, i, i+1, lower, upper)[0]
-np.save('es_limage', es_limage)
-np.save('es_himage', es_himage)
+def gen_prototype(sizex, sizey, ddh, ddl):
+    def gaussian_xy_low(x, y, dd = ddl):
+        cenx, ceny = angle2xy(twoTheta0, Chi0, dd = dd)
+        two_Theta, Chi = xy2angle(x - sizex/2 + cenx, y - sizey/2 + ceny, dd = dd)
+        two_theta, _chi = two_Theta * D2R, Chi * D2R
+        return gaussian(two_theta, _chi)
+    def gaussian_xy_high(x, y, dd = ddh):
+        cenx, ceny = angle2xy(twoTheta0, Chi0, dd = dd)
+        two_Theta, Chi = xy2angle(x - sizex/2 + cenx, y - sizey/2 + ceny, dd = dd)
+        two_theta, _chi = two_Theta * D2R, Chi * D2R
+        return gaussian(two_theta, _chi)
+    for i in range(sizex):
+        for j in range(sizey):
+            lower, upper = lambda x: j, lambda x: j+1
+            es_limage[i, j] = integrate.dblquad(gaussian_xy_low, i, i+1, lower, upper)[0]
+            es_himage[i, j] = integrate.dblquad(gaussian_xy_high, i, i+1, lower, upper)[0]
+    es_himage, es_limage = np.zeros((sizex, sizey)), np.zeros((sizex, sizey))
+    np.save('es_limage', es_limage)
+    np.save('es_himage', es_himage)
+
+def SpotArray(es_l, es_h, num = 100):
+    es_limage, es_himage = np.load(es_l), np.load(es_h)
+    sizex, sizey = es_limage.shape
+    limage, himage = np.zeros((sizex * num, sizey), np.uint16), np.zeros((sizex * num, sizey), np.uint16)
+    for k in range(num):
+        for i in range(sizex):
+            for j in range(sizey):
+                lesti, hesti = es_limage[i, j], es_himage[i, j]
+                limage[sizex * k + i, j] = int(round(random.normal(lesti+expe, sqrt(alpha*lesti + var))))
+                himage[sizex * k + i, j] = int(round(random.normal(hesti+expe, sqrt(alpha*hesti + var))))
+    tiff = TIFFimage(limage, description = '')
+    tiff.write_file('limage', compression = 'none')
+    del tiff
+    tiff = TIFFimage(himage, description = '')
+    tiff.write_file('himage', compression = 'none')
+    del tiff
+    return limage, himage
+
+
 # for displaying the spot
 """
 es_image = np.load('es_image.npy')
