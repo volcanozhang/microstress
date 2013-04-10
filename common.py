@@ -13,32 +13,78 @@ def stringint(k, n):
     res = '0' * (n - len(strint)) + strint
     return res
 
-def angle2xy(two_Theta, Chi, dd = 59.836, Xcen = 1365.74, Ycen = 943.05, Beta = 0.373, Gamma = 0.504):
-    two_theta, chi, beta, gamma = np.array([two_Theta, Chi, Beta, Gamma]) * D2R
-    DD = dd / pix
+def angle2xy(twicetheta, chi, dd = 59.836, xcen = 1365.74, ycen = 943.05, xbet = 0.373, xgam = 0.504):
+    ctw = cos(twicetheta * D2R)
+    stw = sin(twicetheta * D2R)
+    cchi = cos(chi * D2R)
+    schi = sin(chi * D2R)
+
+    xuflab = -stw * schi
+    yuflab = ctw
+    zuflab = stw * cchi
+
+    uflab = np.array([xuflab, yuflab, zuflab]).T
+
+    cosbeta = cos(PI / 2. - xbet * D2R)
+    sinbeta = sin(PI / 2. - xbet * D2R)
+
+    IOlab = dd * np.array([0.0, cosbeta, sinbeta])
+    unlab = IOlab / sqrt(np.dot(IOlab, IOlab))
+    norme_uflab = sqrt(np.sum(uflab ** 2))
+    uflab = uflab / norme_uflab
+
+    scal = np.dot(uflab, unlab)
+    normeIMlab = dd / scal
+
+    IMlab = uflab * normeIMlab
+    OMlab = IMlab - IOlab
     
-    sin2theta, sinchi, sinbeta, singamma = sin(np.array([two_theta, chi, beta, gamma]))
-    cos2theta, coschi, cosbeta, cosgamma = cos(np.array([two_theta, chi, beta, gamma]))
+    xca0 = OMlab[0]
+    yca0 = OMlab[1] / sinbeta
 
-    uf1, uf2, uf3 = -sin2theta * sinchi, cos2theta, sin2theta * coschi
-    xL, yL = np.array([uf1, uf2]) * DD / uf3
-    return cosgamma * xL - singamma * yL /cosbeta + Xcen, singamma * xL + cosgamma * yL /cosbeta + Ycen
+    cosgam = cos(-xgam * D2R)
+    singam = sin(-xgam * D2R)
 
-def xy2angle(X, Y, dd = 59.836, Xcen = 1365.74, Ycen = 943.05, Beta = 0.373, Gamma = 0.504):
-    beta, gamma = np.array([Beta, Gamma]) * D2R
-    DD = dd / pix
-    
-    sinbeta, singamma = sin(np.array([beta, gamma]))
-    cosbeta, cosgamma = cos(np.array([beta, gamma]))
+    xcam1 = cosgam * xca0 + singam * yca0
+    ycam1 = -singam * xca0 + cosgam * yca0
 
-    Xr, Yr = X - Xcen, Y - Ycen
-    f1, f2, f3 = cosgamma * Xr + singamma * Yr, (-singamma * Xr + cosgamma * Yr) * cosbeta, DD
+    xcam = xcen + xcam1 / pix
+    ycam = ycen + ycam1 /pix
 
-    norm = sqrt(f1 ** 2 + f2 ** 2 + f3 **2)
-    two_theta = arccos(f2/norm)
-    sin2theta = sin(two_theta)
-    sinchi, coschi = -f1/(norm*sin2theta), f3/(norm*sin2theta)
-    chi = arccos(coschi)
-    if sinchi < 0:
+    return xcam, ycam
+
+def xy2angle(xcam, ycam, dd = 59.836, xcen = 1365.74, ycen = 943.05, xbet = 0.373, xgam = 0.504):
+    cosbeta = cos(PI / 2. - xbet * D2R)
+    sinbeta = sin(PI / 2. - xbet * D2R)
+
+    cosgam = cos(-xgam * D2R)
+    singam = sin(-xgam * D2R)
+
+    xcam1 = (xcam - xcen) * pix
+    ycam1 = (ycam - ycen) * pix
+
+    xca0 = cosgam * xcam1 - singam * ycam1
+    yca0 = singam * xcam1 + cosgam * ycam1
+
+    xO, yO, zO = dd * np.array([0.0, cosbeta, sinbeta])
+
+    xOM = xca0
+    yOM = yca0 * sinbeta
+    zOM = -yca0 * cosbeta
+
+    xM = xO + xOM
+    yM = yO + yOM
+    zM = zO + zOM
+
+    IMlab = np.array([xM, yM, zM]).T
+
+    nIMlab = 1.*sqrt(xM ** 2 + yM ** 2 + zM ** 2)
+    uflab = IMlab / nIMlab
+
+    twicetheta = arccos(uflab[1])
+    coschi = uflab[2] / sin(twicetheta)
+    twicetheta = twicetheta * R2D
+    chi = arccos(coschi) * R2D
+    if uflab[0] > 0:
         chi = -chi
-    return two_theta * R2D, chi * R2D
+    return twicetheta, chi
