@@ -45,7 +45,7 @@ gaussian = lambda x, y: Imax*exp(-(A*(x-twotheta0)**2+2*B*(x-twotheta0)*(y-chi0)
 dd = 59.836
 
 expe, var = np.load('exp_var.npy')[0: 2]
-def gen_prototype(sizex, sizey, ddh, ddl):
+def gen_prototype(sizex, sizey, ddh = dd * 2, ddl = dd):
     def gaussian_xy_low(x, y, dd = ddl):
         cenx, ceny = angle2xy(twoTheta0, Chi0, dd = dd)
         two_Theta, Chi = xy2angle(x - sizex/2 + cenx, y - sizey/2 + ceny, dd = dd)
@@ -56,12 +56,12 @@ def gen_prototype(sizex, sizey, ddh, ddl):
         two_Theta, Chi = xy2angle(x - sizex/2 + cenx, y - sizey/2 + ceny, dd = dd)
         two_theta, _chi = two_Theta * D2R, Chi * D2R
         return gaussian(two_theta, _chi)
+    es_himage, es_limage = np.zeros((sizex, sizey)), np.zeros((sizex, sizey))
     for i in range(sizex):
         for j in range(sizey):
             lower, upper = lambda x: j, lambda x: j+1
             es_limage[i, j] = integrate.dblquad(gaussian_xy_low, i, i+1, lower, upper)[0]
             es_himage[i, j] = integrate.dblquad(gaussian_xy_high, i, i+1, lower, upper)[0]
-    es_himage, es_limage = np.zeros((sizex, sizey)), np.zeros((sizex, sizey))
     np.save('es_limage', es_limage)
     np.save('es_himage', es_himage)
 
