@@ -1,0 +1,1 @@
+../CMV/usr/local/CMV/bin/cmv -ima limage.tif -refima himage.tif -pts XY.pts -cx 12 -cy 12
