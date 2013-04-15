@@ -59,9 +59,15 @@ def mean_var(hkl, rx = 10, ry = 10):
     return mean, var
 mean, var = mean_var((-5,-5,-7),rx=7,ry=7)
 k, b = linregress(mean, var)[0:2]
+fig, ax = plt.subplots(1)
 plt.axis([0, mean.max()+1, 0, var.max()+1])
 plt.plot(mean, var, '.')
 t = np.arange(0, mean.max(), mean.max()/10)
 s = k * t + b
+ax.set_xlabel('mean')
+ax.set_ylabel('variance')
 plt.plot(t, s, 'r')
+textstr = 'slope$=\\alpha$\ninterception with X axis$=\mu-\sigma^2/\\alpha$'
+props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+ax.text(0.05, 0.95, textstr, transform=ax.transAxes, fontsize=14, verticalalignment='top', bbox=props)
 plt.show()
