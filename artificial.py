@@ -68,13 +68,13 @@ def gen_prototype(sizex, sizey, ddh = dd * 2, ddl = dd):
 def SpotArray(es_l, es_h, num = 100):
     es_limage, es_himage = np.load(es_l), np.load(es_h)
     sizex, sizey = es_limage.shape
-    limage, himage = np.zeros((sizex * num, sizey), np.uint16), np.zeros((sizex * num, sizey), np.uint16)
+    limage, himage = np.zeros((sizex, sizey * num), np.uint16), np.zeros((sizex, sizey * num), np.uint16)
     for k in range(num):
         for i in range(sizex):
             for j in range(sizey):
                 lesti, hesti = es_limage[i, j], es_himage[i, j]
-                limage[sizex * k + i, j] = int(round(random.normal(lesti+expe, sqrt(alpha*lesti + var))))
-                himage[sizex * k + i, j] = int(round(random.normal(hesti+expe, sqrt(alpha*hesti + var))))
+                limage[i, j + sizey * k] = int(round(random.normal(lesti+expe, sqrt(alpha*lesti + var))))
+                himage[i, j + sizey * k] = int(round(random.normal(hesti+expe, sqrt(alpha*hesti + var))))
     tiff = TIFFimage(limage, description = '')
     tiff.write_file('limage', compression = 'none')
     del tiff
@@ -112,3 +112,40 @@ for i in range(numx):
 
 surf = ax.plot_surface(x, y, z, rstride=1, cstride=1, cmap=cm.jet)
 """
+def FromProto(name, expe, var, alpha, nx = 100, ny = 100, sx = 25, sy = 25):
+    image = np.zeros((nx * sx, ny * sy), dtype = np.uint16)
+    proto = np.load(name)
+    for i in range(nx):
+        for j in range(ny):
+            for m in range(sx):
+                for n in range(sy):
+                    esti = proto[i, j, m, n]
+                    image[sx*i + m, sy*j + n] = int(round(random.normal(esti+expe, sqrt(alpha*esti + var))))
+    tiff = TIFFimage(image, description = '')
+    tiff.write_file('image', compression = 'none')
+    del tiff
+"""
+mean_var = np.load('mean_var.npy')
+var = -mean_var[0]
+expe = mean_var[1]
+fit = np.load('hklfit.npy')
+alpha = fit.item().values()[0][0]
+FromProto('prototype new.npy', expe = expe, var = var, alpha = alpha)
+"""
+proto = np.load('prototype new.npy')
+subimage = np.zeros((25, 25), dtype=np.uint16)
+mean_var = np.load('mean_var.npy')
+var = -mean_var[0]
+expe = mean_var[1]
+fit = np.load('hklfit.npy')
+alpha = fit.item().values()[0][0]
+for m in range(25):
+    for n in range(25):
+        esti = proto[0, 0, m, n]
+        subimage[m, n] = int(round(random.normal(esti+expe, sqrt(alpha*esti + var))))
+image = np.zeros((2500, 2500), dtype=np.uint16)
+for i in range(100):
+    for j in range(100):
+        image[i*25: (i+1)*25, j*25: (j+1)*25] = subimage
+tiff = TIFFimage(image, description = '')
+tiff.write_file('ini_image', compression = 'none')
