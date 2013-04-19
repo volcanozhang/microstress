@@ -88,3 +88,12 @@ def xy2angle(xcam, ycam, dd = 59.836, xcen = 1365.74, ycen = 943.05, xbet = 0.37
     if uflab[0] > 0:
         chi = -chi
     return twicetheta, chi
+
+def Euler(ang1, ang2, ang3):
+    c1, c2, c3, s1, s2, s3 = cos(ang1), cos(ang2), cos(ang3), sin(ang1), sin(ang2), sin(ang3)
+
+    mat = np.array([[c1 * c3 - c2 * s1 * s3, c3 * s1 + c1 * c2 * s3, s2 * s3],
+                    [-c1 * s3 - c2 * c3 * s1, c1 * c2 * c3 - s1 * s3, c3 * s2],
+                    [s1 * s2, -c1 * s2, c2]
+                    ])
+    return mat
