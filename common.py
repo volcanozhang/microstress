@@ -102,12 +102,12 @@ def Euler(ang1, ang2, ang3):
 def multi_hkl(hkl):
     h, k, l = hkl
     if h != k and h != l and k != l:
-        return np.array([h, k, l], [h, l, k], [k, h, l], [k, l, h], [l, h, k], [l, k, h])
+        return np.array([[h, k, l], [h, l, k], [k, h, l], [k, l, h], [l, h, k], [l, k, h]])
     if h == k and h == l and k == l:
         return np.array([h, k, l])
     if h == k:
-        return np.array([h, h, l], [h, l, h], [l, h, h])
+        return np.array([[h, h, l], [h, l, h], [l, h, h]])
     if k == l:
-        return np.array([h, k, k], [k, h, k], [k, k, h])
+        return np.array([[h, k, k], [k, h, k], [k, k, h]])
     if h == l:
-        return np.array([h, k, h], [h, h, k], [k, h, h])
+        return np.array([[h, k, h], [h, h, k], [k, h, h]])
