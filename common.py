@@ -122,7 +122,7 @@ def multi_hkl(hkl):
                     ret = ret + [[0, k, 0]]
                 else:
                     ret = ret + [[0, k, l], [0, k, -l]]
-        else
+        else:
             if k == 0:
                 if l == 0:
                     ret = ret + [[h, 0, 0]]
