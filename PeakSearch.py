@@ -7,6 +7,8 @@ import numpy as np
 from scipy import optimize
 import scipy.spatial.distance as ssd
 
+from common import stringint
+
 # lauetools modules
 
 def PeakSearch(filename,
@@ -1688,7 +1690,25 @@ def readoneimage_manycrops(filename, centers, boxsize,
 #        #print "cropdata.shape", cropdata.shape
 ##        Data.append(cropdata)
     return Data
-peaks = PeakSearch('/home/fengguo/Data/Si1g_5N/nomvt/S1gnomvt_0000_mar.tiff',IntensityThreshold=200)
-f = open('peak_.dat', 'w')
-f.write('\n'.join(['%.06f %.06f %.06f %.06f %.06f %.06f %.06f %.06f %.06f %.06f'%tuple(peaks[0].tolist()[i]) for i in range(peaks[0].shape[0])]))
-f.close()
+#peaks = PeakSearch('/home/fengguo/Data/Si1g_5N/nomvt/S1gnomvt_0000_mar.tiff',IntensityThreshold=150)[2]
+peaks = PeakSearch('/home/fengguo/Data/316_Ech2_1N/nomvt/316Ech2_nomvt_0000_mar.tiff',IntensityThreshold=150)[2]
+
+offset = 4096
+framedim = (2594, 2774)
+nb_elem = framedim[0]*framedim[1]
+formatdata = np.uint16
+path = '/home/fengguo/Data/316_Ech2_1N/nomvt/316Ech2_nomvt_0000_mar.tiff'
+
+f = open(path, 'rb')
+f.seek(offset)
+XY = np.zeros(peaks.shape)
+image = np.fromfile(f, dtype = formatdata, count = nb_elem).reshape(framedim)
+for i in range(peaks.shape[0]):
+    x, y = peaks[i]
+    subimage = image[y-15: y+16, x-15: x+16]
+    arg = subimage.argmax()
+    XY[i] = x - subimage.shape[0]/2 + arg%subimage.shape[1], y - subimage.shape[1]/2 + arg/subimage.shape[1]
+#f = open('peak_cmv.dat', 'w')
+#x, y = peaks[0]
+#f.write('\n'.join(['%.06f %.06f %.06f %.06f %.06f %.06f %.06f %.06f %.06f %.06f'%tuple(peaks[0].tolist()[i]) for i in range(peaks[0].shape[0])]))
+#f.close()
