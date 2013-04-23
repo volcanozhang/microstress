@@ -1690,14 +1690,14 @@ def readoneimage_manycrops(filename, centers, boxsize,
 #        #print "cropdata.shape", cropdata.shape
 ##        Data.append(cropdata)
     return Data
-#peaks = PeakSearch('/home/fengguo/Data/Si1g_5N/nomvt/S1gnomvt_0000_mar.tiff',IntensityThreshold=150)[2]
-peaks = PeakSearch('/home/fengguo/Data/316_Ech2_1N/nomvt/316Ech2_nomvt_0000_mar.tiff',IntensityThreshold=150)[2]
+#path = '/home/fengguo/Data/316_Ech2_1N/nomvt/316Ech2_nomvt_0000_mar.tiff'
+path = '/home/fengguo/Data/Si1g_5N/nomvt/S1gnomvt_0000_mar.tiff'
+peaks = PeakSearch(path,IntensityThreshold=150)[2]
 
 offset = 4096
 framedim = (2594, 2774)
 nb_elem = framedim[0]*framedim[1]
 formatdata = np.uint16
-path = '/home/fengguo/Data/316_Ech2_1N/nomvt/316Ech2_nomvt_0000_mar.tiff'
 
 f = open(path, 'rb')
 f.seek(offset)
@@ -1708,7 +1708,10 @@ for i in range(peaks.shape[0]):
     subimage = image[y-15: y+16, x-15: x+16]
     arg = subimage.argmax()
     XY[i] = x - subimage.shape[0]/2 + arg%subimage.shape[1], y - subimage.shape[1]/2 + arg/subimage.shape[1]
-#f = open('peak_cmv.dat', 'w')
+f = open('peak_cmv.dat', 'w')
+for i in range(XY.shape[0]):
+    f.write('\n%i %i %i %i'%(i+1, 0, XY[i,0], -XY[i,1]))
+f.close()
 #x, y = peaks[0]
 #f.write('\n'.join(['%.06f %.06f %.06f %.06f %.06f %.06f %.06f %.06f %.06f %.06f'%tuple(peaks[0].tolist()[i]) for i in range(peaks[0].shape[0])]))
 #f.close()
