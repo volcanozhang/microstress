@@ -1,1 +1,16 @@
-../CMV/usr/local/CMV/bin/cmv -ima limage.tif -refima himage.tif -pts XY.pts -cx 12 -cy 12
+for i in $(seq 0 99)
+do
+if [ ${#i} -eq 1 ]; then
+name='image00'$i'.tif'
+elif [ ${#i} -eq 2 ]; then
+name='image0'$i'.tif'
+fi
+if [ ${#i} -eq 1 ]; then
+fin='XYfin00'$i'.pts'
+elif [ ${#i} -eq 2 ]; then
+fin='XYfin0'$i'.pts'
+fi
+cp 101x101.pts $fin
+/home/fengguo/CMV/example_cmv_user/CMV_user -ima $name -refima ini_image.tif -refpts $fin -pts XYfin.pts -cx 20 -cy 20 -srx 5 -sry 5 -batch true
+done
+
