@@ -39,7 +39,7 @@ def FindingPosition(raw_image, PixelNearRadius = 10, NumOfPoints = 80, xdim = 20
         #print image.max()
         while True:
             Coverage = pos + Circle
-            if Coverage.max() >= min(xdim,ydim) or Coverage.min() <= 0:
+            while Coverage.max() >= min(xdim,ydim) or Coverage.min() <= 0:
                 Coverage = pos + Pos_in_Circle(PixelNearRadius-1)
             sum_cen = image[Coverage[:,0],Coverage[:,1]].sum()
             sum_max, imax = 0, 0
