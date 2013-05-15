@@ -31,6 +31,7 @@ def FindingPosition(raw_image, PixelNearRadius = 10, NumOfPoints = 80, xdim = 20
     image = ma.masked_equal(raw_image, 0).astype(Format)#/ raw_image.max()
     mask = image.mask.copy()
     
+    OldPixelNearRadius = PixelNearRadius
     Circle = Pos_in_Circle(PixelNearRadius)
     IniCenters = []
     #print "begin finding"
@@ -40,7 +41,9 @@ def FindingPosition(raw_image, PixelNearRadius = 10, NumOfPoints = 80, xdim = 20
         while True:
             Coverage = pos + Circle
             while Coverage.max() >= min(xdim,ydim) or Coverage.min() <= 0:
-                Coverage = pos + Pos_in_Circle(PixelNearRadius-1)
+                PixelNearRadius = PixelNearRadius-1
+                Coverage = pos + Pos_in_Circle(PixelNearRadius)
+            PixelNearRadius = OldPixelNearRadius
             sum_cen = image[Coverage[:,0],Coverage[:,1]].sum()
             sum_max, imax = 0, 0
             for i in range(0,8):
