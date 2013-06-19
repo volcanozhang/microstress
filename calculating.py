@@ -1,12 +1,4 @@
-dd = 59.836
-
-xcen = 1365.74
-
-ycen = 943.05
-
-beta = 0.373
-
-gamma = 0.504
+dd, xcen, ycen, beta, gamma = 59.832, 1365.71, 942.85, 0.377, 0.505
 import numpy as np
 import scipy as sp
 from scipy import linalg
@@ -73,6 +65,8 @@ def Get_P_Tensor(xy_pix, beta_deg = beta, gamma_deg = gamma, dd = dd, xcen_pix =
 
 def residuals(solve, k_f_u0, k_f_u1):
     num = k_f_u0.shape[0]
+    #print solve
+    strain = np.zeros((3,3))
     for i in range(0,8):
         strain = strain+solve[i]*base_strain[i]
     res = np.zeros(num)
@@ -83,7 +77,7 @@ def residuals(solve, k_f_u0, k_f_u1):
         cos = -np.dot(q, k_i_u)
         k_f_ue = k_i_u + 2*cos*q
         res[i] = 1 - np.dot(k_f_ue,k_f_u1[i])
-     return res
+    return res
 
 def Get_LS_DGradient(xys0_pix, xys1_pix, eta=0.5, Iter = True):
     num = len(xys0_pix)
@@ -107,16 +101,21 @@ def Get_LS_DGradient(xys0_pix, xys1_pix, eta=0.5, Iter = True):
     ls_coef, ls_dxy = np.dot(coef.T, coef), np.dot(coef.T, dxy)
     #solve = np.dot(ls_coef.I, ls_dxy)
     solve = linalg.solve(ls_coef, ls_dxy)
-    strain = np.zeros((3,3))
+    #print dxy
+    #strain = np.zeros((3,3))
     #return solve
     if Iter == False:
-        for i in range(0,8):
-            strain = strain+solve[i]*base_strain[i]
+        strain = np.tensordot(solve, base_strain, [0,0])
+        return strain
     else:
-        solve = leastsq(residuals, solve, args=(k_f_u0,k_f_u1))
-        for i in range(0,8):
-            strain = strain+solve[i]*base_strain[i]
-    return strain
+        solve_, msg = leastsq(residuals, solve, args=(k_f_u0,k_f_u1))
+        if msg == 1 or msg == 2 or msg == 3 or msg == 4:
+            strain = np.tensordot(solve_, base_strain, [0,0])
+            return strain
+        else:
+            strain = np.tensordot(solve, base_strain, [0,0])
+            return 0
+
     #return coef, dxy
 def Get_Effective_Strain(strain):
     iso = (strain[0,0]+strain[1,1]+strain[2,2])/3
@@ -182,3 +181,43 @@ def Iterate_LS_Strain(xys0_pix, xys1_pix, num = 10):
         dsolve = Get_LS_DGradient(xy_pix, xys1_pix)
         solve = solve+dsolve
     return linalg.expm(solve)
+
+#def Get_LS_DGradient(xys0_pix, xys1_pix, eta=0.5, Iter = True):
+solve = np.zeros((285,3,3))
+for i in range(0,285):
+    xy0, xy1 = np.loadtxt('/home/fengguo/microstress/%iref'%i, skiprows=1)[:,2:4], np.loadtxt('/home/fengguo/microstress/%i200'%i, skiprows=1)[:,2:4]
+    xys0, xys1 = np.zeros(xy0.shape), np.zeros(xy1.shape)
+    xys0[:,0], xys1[:,0] = -xy0[:,1], -xy1[:,1]
+    xys0[:,1], xys1[:,1] = xy0[:,0], xy1[:,0]
+    solve[i]=Get_LS_DGradient(xys0, xys1, eta=0.5, Iter = False)
+"""
+num = len(xys0)
+eta, Iter = 0.5, True
+xys0_pix, xys1_pix = xys0*pix_size, xys1*pix_size
+dxy = (xys1_pix-xys0_pix).reshape(2*num)
+    
+coef = np.zeros((2*num, 8))
+k_f_u0, k_f_u1 = np.zeros((num, 3)), np.zeros((num, 3))
+for i in range(0, num):
+    p_x0, p_y0, k_f_u0[i]= Get_P_Tensor(xys0_pix[i])
+    p_x1, p_y1, k_f_u1[i]= Get_P_Tensor(xys1_pix[i])
+    p_x, p_y = p_x0*eta+p_x1*(1-eta), p_y0*eta+p_y1*(1-eta)
+#p_x, p_y = Get_P_Tensor(xys0_pix[i])
+    xcoef, ycoef = coef[2*i], coef[2*i+1]
+#base = base_strain[i]
+    for j in range(0, 8):
+        base = base_strain[j]   
+        xcoef[j], ycoef[j] = np.tensordot(base, p_x), np.tensordot(base, p_y)
+ls_coef, ls_dxy = np.dot(coef.T, coef), np.dot(coef.T, dxy)
+solve = linalg.solve(ls_coef, ls_dxy)
+print solve
+strain = np.zeros((3,3))
+if Iter == False:
+    for i in range(0,8):       
+        strain = strain+solve[i]*base_strain[i]
+else:
+    solve = leastsq(residuals, solve, args=(k_f_u0,k_f_u1))[0]
+    for i in range(0,8):     
+        strain = strain+solve[i]*base_strain[i]
+"""
+#t=Get_LS_DGradient(xys0_pix, xys1_pix, eta=0.5, Iter = True)
