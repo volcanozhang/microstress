@@ -134,3 +134,17 @@ def multi_hkl(hkl):
                 else:
                     ret = ret + [[h, k, l], [-h, k, l], [h, -k, l], [h, k, -l]]
     return np.array(ret)
+
+def point_L2D(xyz, bet, gam, dd_pix):
+    x, y, z = xyz
+    bet, gam = bet*D2R, gam*D2R
+    sinbet, cosbet, singam, cosgam = sin(bet), cos(bet), sin(gam), cos(gam)
+    xd, yd, zd = cosgam*xl-singam*cosbet*yl+singam*sinbet*zl, singam*xl+cosgam*cosbet*yl-cosgam*sinbet*zl, sinbet*yl+cosbet*zl-dd_pix
+    return xd, yd, zd
+
+def point_D2L(xyzd, bet, gam, dd_pix):
+    xd, yd, zd = xyzd
+    bet, gam = bet*D2R, gam*D2R
+    sinbet, cosbet, singam, cosgam = sin(bet), cos(bet), sin(gam), cos(gam)
+    x, y, z = cosgam*xd+singam*yd, -singam*cosbet*xd+cosgam*cosbet*yd+sinbet*(zd+dd_pix), singam*sinbet*xd-cosgam*sinbet*yd+cosbet*(zd+dd_pix)
+    return x, y, z
