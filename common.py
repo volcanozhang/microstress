@@ -139,7 +139,7 @@ def point_L2D(xyz, bet, gam, dd_pix):
     x, y, z = xyz
     bet, gam = bet*D2R, gam*D2R
     sinbet, cosbet, singam, cosgam = sin(bet), cos(bet), sin(gam), cos(gam)
-    xd, yd, zd = cosgam*xl-singam*cosbet*yl+singam*sinbet*zl, singam*xl+cosgam*cosbet*yl-cosgam*sinbet*zl, sinbet*yl+cosbet*zl-dd_pix
+    xd, yd, zd = cosgam*x-singam*cosbet*y+singam*sinbet*z, singam*x+cosgam*cosbet*y-cosgam*sinbet*z, sinbet*y+cosbet*z-dd_pix
     return xd, yd, zd
 
 def point_D2L(xyzd, bet, gam, dd_pix):
@@ -147,4 +147,18 @@ def point_D2L(xyzd, bet, gam, dd_pix):
     bet, gam = bet*D2R, gam*D2R
     sinbet, cosbet, singam, cosgam = sin(bet), cos(bet), sin(gam), cos(gam)
     x, y, z = cosgam*xd+singam*yd, -singam*cosbet*xd+cosgam*cosbet*yd+sinbet*(zd+dd_pix), singam*sinbet*xd-cosgam*sinbet*yd+cosbet*(zd+dd_pix)
+    return x, y, z
+
+def vector_L2D(xyz, bet, gam):
+    x, y, z = xyz
+    bet, gam = bet*D2R, gam*D2R
+    sinbet, cosbet, singam, cosgam = sin(bet), cos(bet), sin(gam), cos(gam)
+    xd, yd, zd = cosgam*x-singam*cosbet*y+singam*sinbet*z, singam*x+cosgam*cosbet*y-cosgam*sinbet*z, sinbet*y+cosbet*z
+    return xd, yd, zd
+
+def vector_D2L(xyzd, bet, gam):
+    xd, yd, zd = xyzd
+    bet, gam = bet*D2R, gam*D2R
+    sinbet, cosbet, singam, cosgam = sin(bet), cos(bet), sin(gam), cos(gam)
+    x, y, z = cosgam*xd+singam*yd, -singam*cosbet*xd+cosgam*cosbet*yd+sinbet*zd, singam*sinbet*xd-cosgam*sinbet*yd+cosbet*zd
     return x, y, z
