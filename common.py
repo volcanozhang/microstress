@@ -162,3 +162,9 @@ def vector_D2L(xyzd, bet, gam):
     sinbet, cosbet, singam, cosgam = sin(bet), cos(bet), sin(gam), cos(gam)
     x, y, z = cosgam*xd+singam*yd, -singam*cosbet*xd+cosgam*cosbet*yd+sinbet*zd, singam*sinbet*xd-cosgam*sinbet*yd+cosbet*zd
     return x, y, z
+
+def Length(vector):
+    return np.sqrt((vector**2).sum())
+
+def Normalize(vector):
+    return vector/np.sqrt((vector**2).sum())
