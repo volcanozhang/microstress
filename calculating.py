@@ -60,15 +60,15 @@ def Get_F(xys0_pix, xys1_pix, dd0, xcen0, ycen0, bet0, gam0, dd1, xcen1, ycen1, 
         F_ = np.ones(9)
         F_[1:9], msg = leastsq(residuals, F[1:9], args=(q0,q1))
         if msg == 1 or msg == 2 or msg == 3 or msg == 4:
-            F_ = F_.reshape(3,3)
+            F_ = linalg.inv(F_.reshape(3,3)).T
             det = linalg.det(F_)
             return F_/det**(1./3)
         else:
-            F = F.reshape(3,3)
+            F = linalg.inv(F.reshape(3,3)).T
             det = linalg.det(F)
             return F/det**(1./3)
     else:
-        F = F.reshape(3,3)
+        F = linalg.inv(F.reshape(3,3)).T
         det = linalg.det(F)
         return F/det**(1./3)
 
@@ -79,5 +79,5 @@ for i in range(609, 894):
     xys0[:,0], xys1[:,0] = -xy0[:,1], -xy1[:,1]
     xys0[:,1], xys1[:,1] = xy0[:,0], xy1[:,0]
     solve[i-609]=Get_F(xys0, xys1, dd0, xcen0, ycen0, bet0, gam0, dd1, xcen1, ycen1, bet1, gam1, pix_size = 0.031)#,Iter=False)
-np.save('solve070113',solve)
+#np.save('solve070113',solve)
 #F=Get_F(xys0, xys1, dd0, xcen0, ycen0, bet0, gam0, dd1, xcen1, ycen1, bet1, gam1, pix_size = 0.031)
