@@ -1,5 +1,5 @@
-dd0, xcen0, ycen0, bet0, gam0 = 59.832, 1365.71, 942.85, 0.377, 0.505
-dd1, xcen1, ycen1, bet1, gam1 = 59.832, 1365.71, 942.85, 0.377, 0.505
+dd0, xcen0, ycen0, bet0, gam0 = 143.799, 1353.88, 929.42, 0.230, 0.547
+dd1, xcen1, ycen1, bet1, gam1 = 143.799, 1353.88, 929.42, 0.230, 0.547
 import numpy as np
 import scipy as sp
 from numpy import sin, cos, pi
@@ -56,7 +56,7 @@ def Get_F(xys0_pix, xys1_pix, dd0, xcen0, ycen0, bet0, gam0, dd1, xcen1, ycen1, 
     #F[0] = 1
     F[1:9] = linalg.solve(np.dot(A.T,A), np.dot(A.T,b))[0:8]
     #F = F.reshape(3,3)
-    if Iter:
+    if Iter and q0.shape[0]>=8:
         F_ = np.ones(9)
         F_[1:9], msg = leastsq(residuals, F[1:9], args=(q0,q1))
         if msg == 1 or msg == 2 or msg == 3 or msg == 4:
@@ -72,12 +72,12 @@ def Get_F(xys0_pix, xys1_pix, dd0, xcen0, ycen0, bet0, gam0, dd1, xcen1, ycen1, 
         det = linalg.det(F)
         return F/det**(1./3)
 
-solve = np.zeros((285,3,3))
-for i in range(609, 894):
-    xy0, xy1 = np.loadtxt('/home/fengguo/microstress/%iref'%i, skiprows=1)[:,2:4], np.loadtxt('/home/fengguo/microstress/%i200'%i, skiprows=1)[:,2:4]
+solve = np.zeros((283,3,3))
+for i in range(7, 290):
+    xy0, xy1 = np.loadtxt('/home/fengguo/microstress/Ge1_100N/%iref'%i, skiprows=1)[:,2:4], np.loadtxt('/home/fengguo/microstress/Ge1_100N/%icur'%i, skiprows=1)[:,2:4]
     xys0, xys1 = np.zeros(xy0.shape), np.zeros(xy1.shape)
     xys0[:,0], xys1[:,0] = -xy0[:,1], -xy1[:,1]
     xys0[:,1], xys1[:,1] = xy0[:,0], xy1[:,0]
-    solve[i-609]=Get_F(xys0, xys1, dd0, xcen0, ycen0, bet0, gam0, dd1, xcen1, ycen1, bet1, gam1, pix_size = 0.031)#,Iter=False)
+    solve[i-7]=Get_F(xys0, xys1, dd0, xcen0, ycen0, bet0, gam0, dd1, xcen1, ycen1, bet1, gam1, pix_size = 0.031)#,Iter=False)
 #np.save('solve070113',solve)
 #F=Get_F(xys0, xys1, dd0, xcen0, ycen0, bet0, gam0, dd1, xcen1, ycen1, bet1, gam1, pix_size = 0.031)
